@@ -7,6 +7,7 @@
         DisplayCode = 2,
         UseCode = 3,
         Error = 4,
-        Ready = 5
+        Ready = 5,
+        Sensor = 6
     }
 }

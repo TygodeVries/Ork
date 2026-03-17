@@ -52,6 +52,31 @@ namespace Ork.Users
                 case PacketType.Portal:
                     HandlePortalPacket(packet);
                     break;
+
+
+                case PacketType.Sensor:
+                    HandleSensorPacket(packet);
+                    break;
+            }
+        }
+
+        private void HandleSensorPacket(Packet packet)
+        {
+            Bridge? bridge = BridgeManager.GetBridge(this);
+            if (bridge == null)
+            {
+                Connection.SendError("Not Bridged");
+                return;
+            }
+
+            if (userDevice == UserDevice.Phone)
+            {
+                bridge.Game.Connection.SendPacket(packet);
+            }
+
+            else if (userDevice == UserDevice.Game)
+            {
+                bridge.Phone.Connection.SendPacket(packet);
             }
         }
 
