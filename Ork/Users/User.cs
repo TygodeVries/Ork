@@ -38,7 +38,6 @@ namespace Ork.Users
 
         private void HandlePacket(Packet packet)
         {
-            Console.WriteLine(packet.ToJson());
             switch (packet.PacketType)
             {
                 case PacketType.Identify:

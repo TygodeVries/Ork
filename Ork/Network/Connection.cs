@@ -25,9 +25,14 @@ namespace Ork.Network
                 return;
             try
             {
+
                 byte[] packetData = packet.GetBytes();
                 byte[] lengthData = BitConverter.GetBytes(packetData.Length);
 
+                if (!BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(lengthData);
+                }
                 // Write packet header
                 client.GetStream().Write(lengthData);
                 client.GetStream().Write(packetData, 0, packetData.Length);

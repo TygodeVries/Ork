@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Text.Json;
 
 namespace Ork.Network
 {
@@ -27,11 +26,19 @@ namespace Ork.Network
 
             while (pointer < buffer.Length)
             {
-                if (pointer >= buffer.Length)
+                if (pointer + 4 > buffer.Length)
                     break;
 
-                byte size = buffer[pointer];
-                pointer++;
+                byte[] sizeBytes = new byte[4];
+                Array.Copy(buffer, pointer, sizeBytes, 0, 4);
+                pointer += 4;
+
+                if (!BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(sizeBytes);
+                }
+
+                int size = BitConverter.ToInt32(sizeBytes);
 
                 if (pointer + size > buffer.Length)
                     break;
@@ -55,9 +62,10 @@ namespace Ork.Network
         public byte[] GetBytes()
         {
             MemoryStream memoryStream = new MemoryStream();
+            BinaryWriter writer = new BinaryWriter(memoryStream);
 
-            // Write packet type
-            memoryStream.WriteByte((byte)PacketType);
+            // Write packet type 
+            writer.Write((byte)PacketType);
 
             foreach (string key in Fields.Keys)
             {
@@ -65,12 +73,12 @@ namespace Ork.Network
                 byte[] valueBytes = Encoding.UTF8.GetBytes(Fields[key]);
 
                 // Write key text
-                memoryStream.WriteByte((byte)keyBytes.Length);
-                memoryStream.Write(keyBytes);
+                writer.Write(keyBytes.Length);
+                writer.Write(keyBytes);
 
                 // Write value text 
-                memoryStream.WriteByte((byte)valueBytes.Length);
-                memoryStream.Write(valueBytes);
+                writer.Write(valueBytes.Length);
+                writer.Write(valueBytes);
             }
 
             return memoryStream.ToArray();
@@ -96,13 +104,6 @@ namespace Ork.Network
             }
 
             Fields[field] = value;
-        }
-
-        public string ToJson()
-        {
-            JsonSerializerOptions options = new JsonSerializerOptions();
-            options.WriteIndented = true;
-            return JsonSerializer.Serialize(this, options);
         }
     }
 }
