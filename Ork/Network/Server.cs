@@ -36,6 +36,7 @@ namespace Ork.Network
 
         public void Tick()
         {
+            MainThread.Update();
             if (listener == null)
             {
                 throw new InvalidOperationException("Must call Start() before ticking!");
