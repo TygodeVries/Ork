@@ -27,6 +27,7 @@ public class Program
 
         while (active)
         {
+
             server.Tick();
         }
 

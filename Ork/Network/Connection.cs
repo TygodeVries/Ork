@@ -1,124 +1,95 @@
-﻿using System.Net.Sockets;
+﻿using Ork;
+using Ork.Network;
+using System.Net.Sockets;
 
-namespace Ork.Network
+public class Connection
 {
-    public class Connection
+    private TcpClient client;
+    private bool connected;
+    public Connection(TcpClient client)
     {
-        private TcpClient client;
-        private bool connected;
-        public Server server { get; private set; }
-        public Connection(TcpClient client, Server server)
+        this.client = client;
+        connected = true;
+        OnDisconnect += () =>
         {
-            this.server = server;
-            this.client = client;
-            connected = true;
-            OnDisconnect += () =>
-            {
-                connected = false;
-                server.Disconnect(this);
-            };
-        }
+            connected = false;
+        };
 
-        public void SendPacket(Packet packet)
-        {
-            if (!connected)
-                return;
-            try
-            {
-
-                byte[] packetData = packet.GetBytes();
-                byte[] lengthData = BitConverter.GetBytes(packetData.Length);
-
-                if (!BitConverter.IsLittleEndian)
-                {
-                    Array.Reverse(lengthData);
-                }
-                // Write packet header
-                client.GetStream().Write(lengthData);
-                client.GetStream().Write(packetData, 0, packetData.Length);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Disconnected user while sending packet because {e}");
-            }
-        }
-
-        public Action? OnDisconnect;
-
-        public void SendError(string message)
-        {
-            Packet errorPacket = new Packet(PacketType.Error);
-            errorPacket["message"] = message;
-
-            SendPacket(errorPacket);
-        }
-
-        private int size = -1;
-        public bool Pending()
-        {
-            if (!connected)
-                return false;
-
-            try
-            {
-                int available = client.Available;
-
-                if (size == -1 && available >= 4)
-                {
-                    byte[] buffer = new byte[4];
-                    client.GetStream().Read(buffer);
-
-                    if (!BitConverter.IsLittleEndian)
-                    {
-                        Array.Reverse(buffer);
-                    }
-
-                    size = BitConverter.ToInt32(buffer, 0);
-                }
-
-                available = client.Available;
-                return size != -1 && available >= size;
-            }
-            catch (Exception e)
-            {
-                OnDisconnect?.Invoke();
-                Console.WriteLine($"Disconnected user while waiting for next packet because {e}");
-                return false;
-            }
-        }
-
-        public void AcceptPacket()
-        {
-            if (!connected)
-                return;
-
-            if (!Pending())
-            {
-                return;
-            }
-
-            Packet packet;
-            try
-            {
-                byte[] buffer = new byte[size];
-                if (BitConverter.IsLittleEndian)
-                    Array.Reverse(buffer);
-
-                client.GetStream().Read(buffer, 0, size);
-
-                packet = Packet.GetPacketFromBuffer(buffer);
-                size = -1;
-            }
-            catch (Exception e)
-            {
-                OnDisconnect?.Invoke();
-                Console.WriteLine($"Disconnected user while reading packet because {e}");
-                return;
-            }
-
-            OnPacket?.Invoke(packet);
-        }
-
-        public Action<Packet>? OnPacket;
+        Task.Run(() => ReceiveLoop(client.GetStream()));
     }
+
+    /// <summary>
+    /// Send a packet over the network
+    /// </summary>
+    /// <param name="packet"></param>
+    public async Task SendPacket(Packet packet)
+    {
+        if (!connected)
+            return;
+        try
+        {
+            byte[] packetData = packet.GetBytes();
+            byte[] lengthData = BitConverter.GetBytes(packetData.Length);
+
+            if (!BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(lengthData);
+            }
+
+            // Write packet header
+            await client.GetStream().WriteAsync(lengthData);
+            await client.GetStream().WriteAsync(packetData, 0, packetData.Length);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Disconnected user while sending packet because {e}");
+        }
+    }
+
+    public Action OnDisconnect;
+
+    private async Task ReceiveLoop(NetworkStream stream)
+    {
+        try
+        {
+            while (connected)
+            {
+                byte[] lengthBuffer = new byte[4];
+                await ReadExactAsync(stream, lengthBuffer, 4);
+
+                int size = BitConverter.ToInt32(lengthBuffer, 0);
+                byte[] buffer = new byte[size];
+                await ReadExactAsync(stream, buffer, size);
+
+                Packet packet = Packet.GetPacketFromBuffer(buffer);
+
+                MainThread.Run(() =>
+                {
+                    OnPacket?.Invoke(packet);
+                });
+            }
+        }
+        catch (Exception e)
+        {
+            OnDisconnect?.Invoke();
+            Console.WriteLine($"Disconnected: {e}");
+        }
+    }
+
+    private async Task ReadExactAsync(NetworkStream stream, byte[] buffer, int size)
+    {
+        int totalRead = 0;
+        while (totalRead < size)
+        {
+            int read = await stream.ReadAsync(buffer, totalRead, size - totalRead);
+            if (read == 0)
+                throw new Exception("Disconnected");
+            totalRead += read;
+        }
+    }
+
+    /// <summary>
+    /// Get's called when a packet has been revieved
+    /// </summary>
+    public Action<Packet> OnPacket;
 }
