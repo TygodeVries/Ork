@@ -25,13 +25,13 @@ public class Packet
         if (!Enum.IsDefined(typeof(PacketType), buffer[pointer]))
             throw new Exception("Invalid packet type");
 
-        Packet packet = new Packet((PacketType)buffer[pointer]);
+        Packet packet = new Packet((PacketType)buffer[pointer]); // Read the packet type
         pointer++;
 
         if (pointer + 4 > buffer.Length)
             throw new Exception("Invalid packet: missing field count");
 
-        int fieldCount = BitConverter.ToInt32(buffer, pointer);
+        int fieldCount = BitConverter.ToInt32(buffer, pointer); // Read the field count
 
         if (fieldCount > MAX_PACKET_FIELD_COUNT)
             throw new Exception($"Invalid packet: MAX_PACKET_FIELD_COUNT has been surpassed. {fieldCount} > {MAX_PACKET_FIELD_COUNT}");
@@ -41,12 +41,12 @@ public class Packet
 
         pointer += 4;
 
-        for (int i = 0; i < fieldCount; i++)
+        for (int i = 0; i < fieldCount; i++) // For every field
         {
             if (pointer + 4 > buffer.Length)
                 throw new Exception("Invalid packet: missing key size");
 
-            int keySize = BitConverter.ToInt32(buffer, pointer);
+            int keySize = BitConverter.ToInt32(buffer, pointer); // Read how long the key will be
             pointer += 4;
 
             if (keySize > MAX_PACKET_FIELD_SIZE)
@@ -58,14 +58,14 @@ public class Packet
             if (keySize < 0)
                 throw new Exception($"Invalid packet: keySize can not be negative! {keySize}.");
 
-            string key = Encoding.UTF8.GetString(buffer, pointer, keySize);
+            string key = Encoding.UTF8.GetString(buffer, pointer, keySize); // Read the key
             pointer += keySize;
 
             if (pointer + 4 > buffer.Length)
                 throw new Exception("Invalid packet: missing value size");
 
 
-            int valueSize = BitConverter.ToInt32(buffer, pointer);
+            int valueSize = BitConverter.ToInt32(buffer, pointer); // Read how long the content is
             pointer += 4;
 
             if (valueSize < 0)
@@ -78,10 +78,10 @@ public class Packet
                 throw new Exception("Invalid packet: value exceeds buffer");
 
 
-            byte[] value = buffer.AsSpan(pointer, valueSize).ToArray();
+            byte[] value = buffer.AsSpan(pointer, valueSize).ToArray(); // Read the content
             pointer += valueSize;
 
-            packet.SetBytesField(key, value);
+            packet.SetBytesField(key, value); // Update packet structure
         }
 
         return packet;
