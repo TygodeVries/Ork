@@ -18,6 +18,11 @@ public class Connection
         Task.Run(() => ReceiveLoop(client.GetStream()));
     }
 
+    public void SendError(string message)
+    {
+        //#TODO
+    }
+
     /// <summary>
     /// Send a packet over the network
     /// </summary>
