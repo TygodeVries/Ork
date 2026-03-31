@@ -62,6 +62,21 @@ namespace Ork.Users
             }
         }
 
+        private void HandleBrowsePacket(Packet packet)
+        {
+            Packet response = new Packet(PacketType.Browse);
+
+            string[] levels = LevelDatabase.Search(response.GetStringField("request"));
+
+            response.SetStringField("count", $"{levels.Length}");
+            for (int i = 0; i < levels.Length; i++)
+            {
+                response.SetStringField($"level.{i}", levels[i]);
+            }
+
+            _ = Connection.SendPacket(response);
+        }
+
         private void HandleSensorPacket(Packet packet)
         {
             Bridge? bridge = BridgeManager.GetBridge(this);
@@ -80,21 +95,6 @@ namespace Ork.Users
             {
                 bridge.Phone.Connection.SendPacket(packet);
             }
-        }
-
-        private void HandleBrowsePacket(Packet packet)
-        {
-            Packet response = new Packet(PacketType.Browse);
-
-            string[] levels = LevelDatabase.Search(response.GetStringField("request"));
-
-            response.SetStringField("count", $"{levels.Length}");
-            for (int i = 0; i < levels.Length; i++)
-            {
-                response.SetStringField($"level.{i}", levels[i]);
-            }
-
-            _ = Connection.SendPacket(response);
         }
 
         private void HandlePortalPacket(Packet packet)
