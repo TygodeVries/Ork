@@ -66,7 +66,7 @@ namespace Ork.Users
         {
             Packet response = new Packet(PacketType.Browse);
 
-            string[] levels = LevelDatabase.Search(response.GetStringField("request"));
+            string[] levels = LevelDatabase.Search(packet.GetStringField("request"));
 
             response.SetStringField("count", $"{levels.Length}");
             for (int i = 0; i < levels.Length; i++)
