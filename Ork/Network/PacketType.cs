@@ -8,6 +8,7 @@
         UseCode = 3,
         Error = 4,
         Ready = 5,
-        Sensor = 6
+        Sensor = 6,
+        Browse = 7
     }
 }
