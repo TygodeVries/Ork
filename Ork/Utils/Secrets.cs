@@ -9,9 +9,25 @@ namespace Ork.Utils
         {
             if (instance == null)
             {
+                if (!File.Exists("/secret/secrets.json"))
+                {
+                    Console.WriteLine("File does not exist!");
+                    return null;
+                }
+
                 string text = File.ReadAllText("/secret/secrets.json");
+
+                Console.WriteLine($"Read Secrets File! {text.Length}");
                 instance = JsonSerializer.Deserialize<Secrets>(text);
-                Console.WriteLine($"Loaded Secrets! Initials: {instance.databaseUrl.Substring(0, 5)}.");
+
+                if (instance == null)
+                {
+                    Console.WriteLine("Could not load json object!");
+                    return null;
+                }
+
+                Console.WriteLine($"Loaded Secrets!.");
+                Console.WriteLine($"Initials: {instance.databaseUrl?.Substring(0, 5)}");
             }
 
             if (instance == null)
