@@ -11,7 +11,7 @@ namespace Ork.Utils
             {
                 string text = File.ReadAllText("/secret/secrets.json");
                 instance = JsonSerializer.Deserialize<Secrets>(text);
-                Console.WriteLine("Loaded Secrets!");
+                Console.WriteLine($"Loaded Secrets! Initials: {instance.databaseUrl.Substring(0, 5)}.");
             }
 
             if (instance == null)
