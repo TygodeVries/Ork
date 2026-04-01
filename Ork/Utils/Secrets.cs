@@ -38,7 +38,7 @@ namespace Ork.Utils
             return instance!;
         }
 
-        public string? databaseUrl;
-        public string? databaseKey;
+        public string? databaseUrl { get; set; }
+        public string? databaseKey { get; set; }
     }
 }
