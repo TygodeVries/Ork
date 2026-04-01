@@ -57,21 +57,21 @@ namespace Ork.Users
                     break;
 
                 case PacketType.Browse:
-                    HandleBrowsePacket(packet);
+                    _ = HandleBrowsePacket(packet);
                     break;
             }
         }
 
-        private void HandleBrowsePacket(Packet packet)
+        private async Task HandleBrowsePacket(Packet packet)
         {
             Packet response = new Packet(PacketType.Browse);
 
-            string[] levels = LevelDatabase.Search(packet.GetStringField("request"));
+            List<DatabaseLevelEntry> levels = await Database.GetLevels(packet.GetStringField("request"));
 
-            response.SetStringField("count", $"{levels.Length}");
-            for (int i = 0; i < levels.Length; i++)
+            response.SetStringField("count", $"{levels.Count}");
+            for (int i = 0; i < levels.Count; i++)
             {
-                response.SetStringField($"level.{i}", levels[i]);
+                response.SetStringField($"level.{i}.id", levels[i].level_id);
             }
 
             _ = Connection.SendPacket(response);

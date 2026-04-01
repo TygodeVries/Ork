@@ -1,12 +1,15 @@
 ﻿using Ork.Network;
 using Ork.Tests;
 using Ork.Users;
+using Ork.Utils;
 using System.Net;
 
 public class Program
 {
     public static void Main(string[] args)
     {
+        Secrets.GetSecrets();
+
         Console.WriteLine("Running Tests...");
         PacketFormatTest.Run();
 
