@@ -47,9 +47,6 @@ namespace Ork.Network
             if (pending)
             {
                 TcpClient network = listener.AcceptTcpClient();
-                Console.WriteLine($"Someone Connected From {network.Client.RemoteEndPoint}!");
-
-                File.WriteAllText($"{DateTime.Now.Ticks}.txt", $"{network.Client.RemoteEndPoint}");
                 Connection connection = new Connection(network);
                 AcceptNewClient?.Invoke(connection);
                 connections.Add(connection);
