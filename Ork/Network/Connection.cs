@@ -20,7 +20,11 @@ public class Connection
 
     public void SendError(string message)
     {
-        //#TODO
+        Packet errorPacket = new Packet(PacketType.Error);
+
+        errorPacket["message"] = message;
+
+        SendPacket(errorPacket);
     }
 
     /// <summary>
