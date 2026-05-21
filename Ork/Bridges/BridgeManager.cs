@@ -65,9 +65,12 @@ namespace Ork.Bridges
 
         public static void Remove(Bridge bridge)
         {
-            bridge.Phone.Connection.Disconnect();
-            bridge.Game.Connection.Disconnect();
-            bridges.Remove(bridge);
+            if (bridge != null)
+            {
+                bridge.Phone.Connection.Disconnect();
+                bridge.Game.Connection.Disconnect();
+                bridges.Remove(bridge);
+            }
         }
     }
 }

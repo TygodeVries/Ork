@@ -23,6 +23,8 @@ public class Connection
         connected = false;
         client.Close();
         client.Dispose();
+
+        OnDisconnect?.Invoke();
     }
     public void SendError(string message)
     {
@@ -58,6 +60,7 @@ public class Connection
         catch (Exception e)
         {
             Console.WriteLine($"Disconnected user while sending packet because {e}");
+            Disconnect();
         }
     }
 
@@ -86,8 +89,8 @@ public class Connection
         }
         catch (Exception e)
         {
-            OnDisconnect?.Invoke();
             Console.WriteLine($"Disconnected: {e}");
+            Disconnect();
         }
     }
 
