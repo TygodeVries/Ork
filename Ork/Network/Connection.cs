@@ -18,6 +18,12 @@ public class Connection
         Task.Run(() => ReceiveLoop(client.GetStream()));
     }
 
+    public void Disconnect()
+    {
+        connected = false;
+        client.Close();
+        client.Dispose();
+    }
     public void SendError(string message)
     {
         Packet errorPacket = new Packet(PacketType.Error);

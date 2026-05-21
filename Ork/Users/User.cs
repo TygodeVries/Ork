@@ -20,7 +20,7 @@ namespace Ork.Users
             Connection.OnDisconnect += Disconnect;
         }
 
-        private void Disconnect()
+        public void Disconnect()
         {
             Console.WriteLine("User Disconnected.");
             Bridge? bridge = BridgeManager.GetBridge(this);
@@ -33,6 +33,8 @@ namespace Ork.Users
                     bridge.Game?.Connection.SendError("Connection with other user lost.");
 
                 BridgeManager.Remove(bridge);
+
+                Connection.Disconnect();
             }
         }
 
