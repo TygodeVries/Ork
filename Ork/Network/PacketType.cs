@@ -9,6 +9,7 @@
         Error = 4,
         Ready = 5,
         Sensor = 6,
-        Browse = 7
+        Browse = 7,
+        Ping = 8
     }
 }

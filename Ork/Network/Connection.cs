@@ -24,6 +24,9 @@ public class Connection
 
     public void Disconnect()
     {
+        if (!connected)
+            return;
+
         connected = false;
         client.Close();
         client.Dispose();
