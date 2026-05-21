@@ -10,10 +10,6 @@ public class Connection
     {
         this.client = client;
         connected = true;
-        OnDisconnect += () =>
-        {
-            connected = false;
-        };
 
         Task.Run(() => ReceiveLoop(client.GetStream()));
     }
@@ -101,7 +97,10 @@ public class Connection
         {
             int read = await stream.ReadAsync(buffer, totalRead, size - totalRead);
             if (read == 0)
-                throw new Exception("Disconnected");
+            {
+                Disconnect();
+                return;
+            }
             totalRead += read;
         }
     }
