@@ -33,8 +33,6 @@ namespace Ork.Users
                     bridge.Game?.Connection.SendError("Connection with other user lost.");
 
                 BridgeManager.Remove(bridge);
-
-                Connection.Disconnect();
             }
         }
 
