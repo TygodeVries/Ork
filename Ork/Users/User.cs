@@ -17,23 +17,6 @@ namespace Ork.Users
         private void Assign()
         {
             Connection.OnPacket += HandlePacket;
-            Connection.OnDisconnect += Disconnect;
-        }
-
-        public void Disconnect()
-        {
-            Console.WriteLine("User Disconnected.");
-            Bridge? bridge = BridgeManager.GetBridge(this);
-            if (bridge != null)
-            {
-                if (bridge.Game == this)
-                    bridge.Phone?.Connection.SendError("Connection with other user lost.");
-
-                if (bridge.Phone == this)
-                    bridge.Game?.Connection.SendError("Connection with other user lost.");
-
-                BridgeManager.Remove(bridge);
-            }
         }
 
         private void HandlePacket(Packet packet)

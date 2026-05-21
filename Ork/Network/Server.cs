@@ -47,7 +47,7 @@ namespace Ork.Network
             if (pending)
             {
                 TcpClient network = listener.AcceptTcpClient();
-                Connection connection = new Connection(network);
+                Connection connection = new Connection(network, this);
                 AcceptNewClient?.Invoke(connection);
                 connections.Add(connection);
             }

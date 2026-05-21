@@ -1,11 +1,14 @@
 ﻿using Ork;
+using Ork.Bridges;
 using Ork.Network;
+using Ork.Users;
 using System.Net.Sockets;
 
 public class Connection
 {
     private TcpClient client;
     private bool connected;
+    private UserManager userManager;
     public Connection(TcpClient client)
     {
         this.client = client;
@@ -14,13 +17,28 @@ public class Connection
         Task.Run(() => ReceiveLoop(client.GetStream()));
     }
 
+    public void SetUserManager(UserManager userManager)
+    {
+        this.userManager = userManager;
+    }
+
     public void Disconnect()
     {
         connected = false;
         client.Close();
         client.Dispose();
 
+        Bridge? bridge = BridgeManager.GetBridge(userManager.GetUser(this)!);
+
+        if (bridge != null)
+        {
+            BridgeManager.Remove(bridge!);
+        }
+
         OnDisconnect?.Invoke();
+
+
+        Console.WriteLine("Disconnected user!");
     }
     public void SendError(string message)
     {
@@ -39,6 +57,7 @@ public class Connection
     {
         if (!connected)
             return;
+
         try
         {
             byte[] packetData = packet.GetBytes();

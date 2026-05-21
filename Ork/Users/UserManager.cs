@@ -15,9 +15,21 @@ namespace Ork.Users
         {
             server.AcceptNewClient += (Connection connection) =>
             {
+                connection.SetUserManager(this);
                 User user = new User(connection);
                 AddUser(user);
             };
+        }
+
+        public User? GetUser(Connection connection)
+        {
+            foreach (var user in users)
+            {
+                if (user.Connection == connection)
+                    return user;
+            }
+
+            return null;
         }
     }
 }
