@@ -23,8 +23,9 @@ public class Packet
             throw new Exception("Invalid packet: Empty buffer");
 
         if (!Enum.IsDefined(typeof(PacketType), buffer[pointer]))
-            throw new Exception("Invalid packet type");
-
+        {
+            throw new Exception($"Invalid packet type: {buffer[pointer]}");
+        }
         Packet packet = new Packet((PacketType)buffer[pointer]); // Read the packet type
         pointer++;
 
