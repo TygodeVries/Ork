@@ -93,6 +93,9 @@ public class Connection
                 byte[] lengthBuffer = new byte[4];
                 await ReadExactAsync(stream, lengthBuffer, 4);
 
+                if (!BitConverter.IsLittleEndian)
+                    Array.Reverse(lengthBuffer);
+
                 int size = BitConverter.ToInt32(lengthBuffer, 0);
                 byte[] buffer = new byte[size];
                 await ReadExactAsync(stream, buffer, size);
