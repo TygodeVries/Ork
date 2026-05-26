@@ -77,10 +77,9 @@ namespace Ork.Users
             {
                 bridge.Game.Connection.SendPacket(packet);
             }
-
-            else if (userDevice == UserDevice.Game)
+            else
             {
-                bridge.Phone.Connection.SendPacket(packet);
+                Connection.SendError("Invalid Device!");
             }
         }
 
