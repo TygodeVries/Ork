@@ -39,6 +39,10 @@ namespace Ork.Users
                     HandleSensorPacket(packet);
                     break;
 
+                case PacketType.Controller:
+                    HandleControllerPacket(packet);
+                    break;
+
                 case PacketType.Browse:
                     _ = HandleBrowsePacket(packet);
                     break;
@@ -58,6 +62,26 @@ namespace Ork.Users
             }
 
             _ = Connection.SendPacket(response);
+        }
+
+        private void HandleControllerPacket(Packet packet)
+        {
+            Bridge? bridge = BridgeManager.GetBridge(this);
+            if (bridge == null)
+            {
+                Connection.SendError("Not Bridged");
+                return;
+            }
+
+            if (userDevice == UserDevice.Phone)
+            {
+                bridge.Game.Connection.SendPacket(packet);
+            }
+
+            else if (userDevice == UserDevice.Game)
+            {
+                bridge.Phone.Connection.SendPacket(packet);
+            }
         }
 
         private void HandleSensorPacket(Packet packet)

@@ -10,6 +10,7 @@
         Ready = 5,
         Sensor = 6,
         Browse = 7,
-        Ping = 8
+        Ping = 8,
+        Controller = 9
     }
 }
