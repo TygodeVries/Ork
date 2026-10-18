@@ -6,6 +6,7 @@ using System.Net;
 
 public class Program
 {
+    // Please rebuild
     public static void Main(string[] args)
     {
         Secrets.GetSecrets();
